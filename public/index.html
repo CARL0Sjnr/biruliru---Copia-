@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goonddit</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="mainHeader">
+    <h1>Goonddit</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Pesquisar..." />
+      <button id="searchButton">Buscar</button>
+      
+      <select id="sortSelect">
+        <option value="relevance">Relevância</option>
+        <option value="hot">Hot</option>
+        <option value="top">Top</option>
+        <option value="new">New</option>
+      </select>
+      
+      <select id="mediaTypeSelect">
+        <option value="all">Todos</option>
+        <option value="image">Imagens</option>
+        <option value="gallery">Galerias</option>
+        <option value="video">Vídeos</option>
+      </select>
+      
+      <button id="scrollButton">⬇️ Scroll Automático</button>
+    </div>
+  </header>
+
+  <main id="container"></main>
+
+  <!-- Modal Atualizado -->
+  <div id="modal" class="modal">
+    <span id="closeModal">&times;</span>
+    
+    <div class="modal-content">
+      <button id="prevImage" class="nav-button">&#10094;</button>
+      
+      <div class="image-container">
+        <img id="modalImg" />
+        <div id="imageInfo" class="image-info">
+          <span id="imageCounter"></span>
+        </div>
+      </div>
+      
+      <button id="nextImage" class="nav-button">&#10095;</button>
+    </div>
+    
+    <div id="modalButtons">
+      <button id="zoomIn">Zoom +</button>
+      <button id="zoomOut">Zoom −</button>
+      <button id="downloadImg">Baixar</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
