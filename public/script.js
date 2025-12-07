@@ -59,23 +59,29 @@ function handleScrollHeader() {
 // ─── NOVO: TENTATIVA MÚLTIPLA DE FETCH (FALLBACK PROXY) ──────────
 // =================================================================
 
+    // script.js (Função tryFetch ATUALIZADA)
+
 async function tryFetch(url) {
-    // Se a URL for de um SUBREDDIT ESPECÍFICO, priorizamos Proxies/Old Reddit para evitar 404/403
-    const isSubredditUrl = url.includes("/r/") && url.includes(".json") && !url.includes("search.json");
+    // A URL que você quer buscar (ex: do Reddit)
+    const encodedUrl = encodeURIComponent(url);
 
     const attempts = [
-        // 1. Seu Proxy Local (se funcionar, é o mais rápido)
-        { name: "Proxy Local (/api/search)", url: `/api/search?url=${encodeURIComponent(url)}`, isProxy: true },
+        // 1. Tenta o Proxy Vercel (Se falhar com 404, cai fora)
+        { name: "Proxy Local (/api/search)", url: `/api/search?url=${encodedUrl}`, isProxy: true },
         
-        // 2. Se for uma URL de Subreddit Específico, tente contornar o bloqueio de API
-        ...(isSubredditUrl ? [
-            { name: "old reddit", url: url.replace("https://www.reddit.com", "https://old.reddit.com") },
-            { name: "allorigins", url: "https://api.allorigins.win/raw?url=" + encodeURIComponent(url) },
-        ] : []),
+        // 2. Proxies Públicas de Backup
+        { name: "corsproxy.io", url: `https://corsproxy.io/?${encodedUrl}` },
+        { name: "allorigins", url: `https://api.allorigins.win/raw?url=${encodedUrl}` },
+        { name: "old reddit", url: url.replace("https://www.reddit.com", "https://old.reddit.com") },
         
-        // 3. Tentativa direta (para buscar/carregar feeds mais abertos)
+        // 3. Tenta a fonte direta (Geralmente falha por CORS/403)
         { name: "reddit normal (direto)", url: url }, 
+        { name: "thingproxy", url: `https://thingproxy.freeboard.io/fetch/${url}` }
     ];
+
+    // O restante da lógica de fetch, tratamento de erros e retorno deve permanecer a mesma.
+    // ...
+
 
     for (const attempt of attempts) {
         try {
