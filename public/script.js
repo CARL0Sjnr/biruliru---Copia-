@@ -59,8 +59,6 @@ function handleScrollHeader() {
 // ─── NOVO: TENTATIVA MÚLTIPLA DE FETCH (FALLBACK PROXY) ──────────
 // =================================================================
 
-    // script.js (Função tryFetch ATUALIZADA)
-
 async function tryFetch(url) {
     // A URL que você quer buscar (ex: do Reddit)
     const encodedUrl = encodeURIComponent(url);
@@ -78,10 +76,6 @@ async function tryFetch(url) {
         { name: "reddit normal (direto)", url: url }, 
         { name: "thingproxy", url: `https://thingproxy.freeboard.io/fetch/${url}` }
     ];
-
-    // O restante da lógica de fetch, tratamento de erros e retorno deve permanecer a mesma.
-    // ...
-
 
     for (const attempt of attempts) {
         try {
@@ -126,7 +120,7 @@ async function tryFetch(url) {
 
 // ─── MODAL ATUALIZADO ─────────────────────────────────────
 function openModal(src, galleryImages = null) {
-    openAdPopup();
+    // 🛑 REMOVIDO: openAdPopup(); - A função de abrir pop-up foi removida
     
     modal.style.display = "block";
     modalImg.src = src;
@@ -225,9 +219,9 @@ document.addEventListener('keydown', (e) => {
 async function fetchAndRender(reset = false, subreddit = null) {
     // Se o age gate não foi aprovado, não carrega conteúdo restrito
     if (localStorage.getItem("adult_ok") !== "true" && queryAtual.includes("anal")) {
-         console.warn("Conteúdo adulto bloqueado pelo Age Gate.");
-         if (reset) container.innerHTML = "<div style='color: white; padding: 20px; text-align: center;'>Acesso negado. Confirme sua idade para ver conteúdo restrito.</div>";
-         return;
+          console.warn("Conteúdo adulto bloqueado pelo Age Gate.");
+          if (reset) container.innerHTML = "<div style='color: white; padding: 20px; text-align: center;'>Acesso negado. Confirme sua idade para ver conteúdo restrito.</div>";
+          return;
     }
 
 
@@ -286,7 +280,7 @@ async function fetchAndRender(reset = false, subreddit = null) {
 
         after = data.data.after || null;
         
-        let postsRenderedInBatch = 0; // Contador de posts nesta chamada
+        // 🛑 REMOVIDO: let postsRenderedInBatch = 0; // Contador de posts nesta chamada
 
         const posts = data.data.children.filter(({data: post}) => {
             if (mediaType === 'all') return true;
@@ -313,6 +307,9 @@ async function fetchAndRender(reset = false, subreddit = null) {
             const div = document.createElement("div"); 
             div.classList.add("post");
             let content = "";
+
+            // Lógica de Encurtador será implementada aqui (ou em um novo elemento)
+            // Por enquanto, a renderização é mantida, mas a lógica de anúncio está fora.
 
             if (post.post_hint === "image" && post.url) {
                 content = `
@@ -381,13 +378,6 @@ async function fetchAndRender(reset = false, subreddit = null) {
                 container.appendChild(div);
 
                 div.querySelectorAll(".lazy-media").forEach(el => observer.observe(el));
-                
-                // Lógica de Inserção do Anúncio a cada 7 posts
-                postsRenderedInBatch++;
-                if (postsRenderedInBatch % 7 === 0) {
-                    const ad = criarCardDeAnuncio();
-                    container.appendChild(ad);
-                }
             }
         });
 
@@ -443,11 +433,14 @@ modal.addEventListener("wheel", e => {
     setZoom(e.deltaY < 0 ? zoomLevel + 0.1 : Math.max(0.1, zoomLevel - 0.1), fx, fy); 
 });
 
+// 🛑 CORREÇÃO: Função para forçar o download
 downloadImg.addEventListener("click", () => { 
     const a = document.createElement("a"); 
     a.href = modalImg.src; 
-    a.download = "imagem.jpg"; 
+    a.download = modalImg.src.split("/").pop().split("?")[0] || "imagem_download.jpg"; // Gera nome de arquivo
+    document.body.appendChild(a);
     a.click(); 
+    document.body.removeChild(a); // Remove o elemento 'a'
 });
 
 function setZoom(level, fx = 50, fy = 50) { 
@@ -507,91 +500,70 @@ searchInput.addEventListener("keypress", e => {
 sortSelect.addEventListener("change", () => fetchAndRender(true));
 mediaTypeSelect.addEventListener("change", () => fetchAndRender(true));
 
-// ============================================================
-// FUNÇÕES DE PUBLICIDADE
-// ============================================================ 
-
-function openAdPopup() {
-  const adURL = "https://google.com";
-  window.open(adURL, "_blank", "width=800,height=600");
-}
-
-function criarCardDeAnuncio() {
-  const div = document.createElement("div");
-  div.classList.add("post");
-  div.style.cssText = "background:#111;padding:20px;text-align:center;border:2px solid #333;border-radius:8px;";
-
-  div.innerHTML = `
-    <h3 style="color:white;margin-bottom:10px;">Publicidade</h3>
-    <a href="https://google.com" target="_blank">
-      <img src="URL_DA_SUA_IMAGEM_DE_ANUNCIO" style="width:100%;border-radius:6px;">
-    </a>
-  `;
-  return div;
-}
-
+// 🛑 REMOVIDAS: As funções 'openAdPopup()' e 'criarCardDeAnuncio()' foram removidas.
+// O código de inserção de anúncios na fetchAndRender foi removido.
 
 // ============================================================
 // AGE GATE (Chamado no final)
 // ============================================================
 function criarAgeGate() {
-  if (localStorage.getItem("adult_ok") === "true") return;
+    if (localStorage.getItem("adult_ok") === "true") return;
 
-  const overlay = document.createElement("div");
-  overlay.id = "ageGateOverlay";
-  overlay.style.cssText = `
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.9);
-    z-index: 999999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  `;
+    const overlay = document.createElement("div");
+    overlay.id = "ageGateOverlay";
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 999999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    `;
 
-  const box = document.createElement("div");
-  box.style.cssText = `
-    background: #1a1a1a;
-    color: white;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: center;
-    width: 90%;
-    max-width: 400px;
-    font-family: sans-serif;
-  `;
+    const box = document.createElement("div");
+    box.style.cssText = `
+        background: #1a1a1a;
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        font-family: sans-serif;
+    `;
 
-  box.innerHTML = `
-    <h2 style="margin-bottom:15px;">🔞 Conteúdo Adulto</h2>
-    <p style="margin-bottom:20px;font-size:16px;line-height:1.4;">
-      Este site contém conteúdo destinado somente a maiores de 18 anos.
-    </p>
+    box.innerHTML = `
+        <h2 style="margin-bottom:15px;">🔞 Conteúdo Adulto</h2>
+        <p style="margin-bottom:20px;font-size:16px;line-height:1.4;">
+            Este site contém conteúdo destinado somente a maiores de 18 anos.
+        </p>
 
-    <button id="btnAdultYes" 
-      style="background:#28a745;color:white;padding:10px 15px;border:0;border-radius:6px;font-size:16px;cursor:pointer;width:100%;margin-bottom:10px;">
-      Tenho mais de 18 anos
-    </button>
+        <button id="btnAdultYes" 
+            style="background:#28a745;color:white;padding:10px 15px;border:0;border-radius:6px;font-size:16px;cursor:pointer;width:100%;margin-bottom:10px;">
+            Tenho mais de 18 anos
+        </button>
 
-    <button id="btnAdultNo" 
-      style="background:#dc3545;color:white;padding:10px 15px;border:0;border-radius:6px;font-size:16px;cursor:pointer;width:100%;">
-      Tenho menos de 18 anos
-    </button>
-  `;
+        <button id="btnAdultNo" 
+            style="background:#dc3545;color:white;padding:10px 15px;border:0;border-radius:6px;font-size:16px;cursor:pointer;width:100%;">
+            Tenho menos de 18 anos
+        </button>
+    `;
 
-  overlay.appendChild(box);
-  document.body.appendChild(overlay);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
 
-  document.getElementById("btnAdultYes").onclick = () => {
-    localStorage.setItem("adult_ok", "true");
-    overlay.remove();
-    if (container.innerHTML.includes("Acesso negado.")) {
-        fetchAndRender(true); 
-    }
-  };
+    document.getElementById("btnAdultYes").onclick = () => {
+        localStorage.setItem("adult_ok", "true");
+        overlay.remove();
+        if (container.innerHTML.includes("Acesso negado.")) {
+            fetchAndRender(true); 
+        }
+    };
 
-  document.getElementById("btnAdultNo").onclick = () => {
-    window.location.href = "https://www.google.com/";
-  };
+    document.getElementById("btnAdultNo").onclick = () => {
+        window.location.href = "https://www.google.com/";
+    };
 }
 
 // ─── INICIAL ──────────────────────────────────────────────
