@@ -68,13 +68,13 @@ async function tryFetch(url) {
         { name: "Proxy Local (/api/search)", url: `/api/search?url=${encodedUrl}`, isProxy: true },
         
         // 2. Proxies Públicas de Backup
-        { name: "corsproxy.io", url: `https://corsproxy.io/?${encodedUrl}` },
+        { name: "thingproxy", url: `https://thingproxy.freeboard.io/fetch/${url}` },
         { name: "allorigins", url: `https://api.allorigins.win/raw?url=${encodedUrl}` },
         { name: "old reddit", url: url.replace("https://www.reddit.com", "https://old.reddit.com") },
         
         // 3. Tenta a fonte direta (Geralmente falha por CORS/403)
         { name: "reddit normal (direto)", url: url }, 
-        { name: "thingproxy", url: `https://thingproxy.freeboard.io/fetch/${url}` }
+        { name: "corsproxy.io", url: `https://corsproxy.io/?${encodedUrl}` }
     ];
 
     for (const attempt of attempts) {
