@@ -65,11 +65,11 @@ async function tryFetch(url) {
 
     const attempts = [
         // 1. Tenta o Proxy Vercel (Se falhar com 404, cai fora)
-        { name: "Proxy Local (/api/search)", url: `/api/search?url=${encodedUrl}`, isProxy: true },
+        { name: "allorigins", url: `https://api.allorigins.win/raw?url=${encodedUrl}` },
         
         // 2. Proxies Públicas de Backup
         { name: "thingproxy", url: `https://thingproxy.freeboard.io/fetch/${url}` },
-        { name: "allorigins", url: `https://api.allorigins.win/raw?url=${encodedUrl}` },
+        { name: "Proxy Local (/api/search)", url: `/api/search?url=${encodedUrl}`, isProxy: true },
         { name: "old reddit", url: url.replace("https://www.reddit.com", "https://old.reddit.com") },
         
         // 3. Tenta a fonte direta (Geralmente falha por CORS/403)
